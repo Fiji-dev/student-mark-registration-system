@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}View Mark - Mark Registration System{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h3>View Marks for Module: {{ module_code }}</h3>
+
+    <!-- Form to input the module code -->
+    <form method="get" action="{% url 'view_marks' %}">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="module_code" placeholder="Enter Module Code" required>
+            <button class="btn btn-primary" type="submit">View Marks</button>
+        </div>
+    </form>
+
+    {% if marks %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Coursework 1</th>
+                    <th>Coursework 2</th>
+                    <th>Coursework 3</th>
+                    <th>Total Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mark in marks %}
+                    <tr>
+                        <td>{{ mark.student_id }}</td>
+                        <td>{{ mark.student_name }}</td>
+                        <td>{{ mark.coursework1 }}</td>
+                        <td>{{ mark.coursework2 }}</td>
+                        <td>{{ mark.coursework3 }}</td>
+                        <td>{{ mark.total_marks }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if marks.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?module_code={{ module_code }}&page={{ marks.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% for page_num in marks.paginator.page_range %}
+                <li class="page-item {% if marks.number == page_num %}active{% endif %}">
+                    <a class="page-link" href="?module_code={{ module_code }}&page={{ page_num }}">{{ page_num }}</a>
+                </li>
+            {% endfor %}
+            {% if marks.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?module_code={{ module_code }}&page={{ marks.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% else %}
+    <p class="alert alert-warning">No marks found for this module code.</p>
+    {% endif %}
+</div>
+{% endblock %}

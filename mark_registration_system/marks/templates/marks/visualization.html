@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f96f2;
+        }
+
+        h3 {
+            color: #5a3d87;
+        }
+
+        .chart-container {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .chart-container canvas {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-section {
+            margin-bottom: 40px;
+        }
+
+        .charts-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .chart-column {
+            width: 48%;
+            min-width: 320px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Data Visualizations</h1>
+
+    <div class="charts-row">
+        <!-- Horizontal Bar Chart -->
+        <div class="chart-column chart-section">
+            <h3>Total Marks per Module</h3>
+            <div class="chart-container">
+                <canvas id="barChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Line Chart -->
+        <div class="chart-column chart-section">
+            <h3>Total Marks Over Time</h3>
+            <div class="chart-container">
+                <canvas id="lineChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-row">
+        <!-- Stacked Bar Chart -->
+        <div class="chart-column chart-section">
+            <h3>Coursework Distribution by Module</h3>
+            <div class="chart-container">
+                <canvas id="stackedBarChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="chart-column chart-section">
+            <h3>Gender Distribution</h3>
+            <div class="chart-container">
+                <canvas id="pieChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parse data passed from Django view
+        var barChartData = JSON.parse('{{ bar_chart_data|escapejs }}');
+        var lineChartData = JSON.parse('{{ line_chart_data|escapejs }}');
+        var pieChartData = JSON.parse('{{ pie_chart_data|escapejs }}');
+        var stackedBarChartData = JSON.parse('{{ stacked_bar_chart_data|escapejs }}');
+
+        // Horizontal Bar Chart
+        new Chart(document.getElementById('barChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: barChartData.labels,
+                datasets: [{
+                    label: 'Total Marks',
+                    data: barChartData.total_marks,
+                    backgroundColor: '#FF6384'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutBounce',
+                    delay: (context) => context.dataIndex * 300
+                }
+            }
+        });
+
+        // Line Chart
+        new Chart(document.getElementById('lineChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: lineChartData.labels,
+                datasets: [{
+                    label: 'Total Marks Over Time',
+                    data: lineChartData.total_marks,
+                    borderColor: '#4f96f2',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 2000,
+                    easing: 'linear',
+                    delay: (context) => context.dataIndex * 300
+                }
+            }
+        });
+
+        // Stacked Bar Chart
+        new Chart(document.getElementById('stackedBarChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: stackedBarChartData.labels,
+                datasets: [
+                    {
+                        label: 'Coursework 1',
+                        data: stackedBarChartData.coursework1_values,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                    },
+                    {
+                        label: 'Coursework 2',
+                        data: stackedBarChartData.coursework2_values,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    },
+                    {
+                        label: 'Coursework 3',
+                        data: stackedBarChartData.coursework3_values,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutElastic',
+                    delay: (context) => context.dataIndex * 300
+                },
+                plugins: {
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true }
+                }
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: pieChartData.labels,
+                datasets: [{
+                    label: 'Gender Distribution',
+                    data: pieChartData.values,
+                    backgroundColor: ['#FF6384', '#36A2EB']
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutCubic',
+                    delay: (context) => context.dataIndex * 300
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
